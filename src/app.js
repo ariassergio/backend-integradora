@@ -4,6 +4,8 @@ import handlebars from 'express-handlebars'
 import { Server } from 'socket.io';
 import mongoose from 'mongoose';
 import productRoutes from './routes/productRoutes.js'
+import chatRoutes from './routes/chatRoutes.js'
+
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -121,8 +123,27 @@ app.engine('handlebars', handlebars.engine())
 
 // Rutas
 app.use("/api/products", productRoutes)
+app.use("/chat", chatRoutes)
 
 const server = app.listen(PORT, () => console.log("Servidor corriendo en puerto", PORT));
 const io = new Server(server);
 
-// Aquí puedes añadir más configuraciones y rutas según sea necesario
+//Configuracion Chat
+
+io.on('connection', (socket) => {
+    console.log('Usuario conectado');
+
+    socket.on('disconnect', () => {
+        console.log('Usuario desconectado');
+    });
+
+    socket.on('chatMessage', async (data) => {
+        console.log('Mensaje recibido:', data);
+        try {
+            await messagesModel.create(data);
+            io.emit('chatMessage', data);
+        } catch (error) {
+            console.error("Error al guardar el mensaje:", error);
+        }
+    });
+});

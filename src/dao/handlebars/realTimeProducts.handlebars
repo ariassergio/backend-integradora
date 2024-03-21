@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Time Products</title>
+</head>
+<body>
+
+<!-- Formulario para agregar un nuevo producto -->
+<form id="productForm">
+    <input type="text" name="name" placeholder="Nombre del producto">
+    <input type="text" name="category" placeholder="Categoría del producto">
+    <input type="number" name="quantity" placeholder="Cantidad">
+    <button type="submit">Agregar Producto</button>
+</form>
+
+<!-- Contenedor para mostrar la lista de productos -->
+<ul id="productList"></ul>
+
+<!-- Script JavaScript -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io(); // Conectar al servidor de WebSockets
+
+    // Capturar el evento de envío del formulario
+    document.getElementById('productForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evitar la recarga de la página
+
+        const formData = new FormData(this); // Capturar los datos del formulario
+        const productData = Object.fromEntries(formData.entries()); // Convertirlos a un objeto
+
+        // Enviar los datos del producto al servidor a través de WebSockets
+        socket.emit('addProduct', productData);
+
+        // Limpiar el formulario
+        this.reset();
+    });
+
+    // Escuchar el evento de actualización de la lista de productos
+    socket.on('productListUpdated', function(productList) {
+        // Actualizar la lista de productos en la vista
+        const productListContainer = document.getElementById('productList');
+        productListContainer.innerHTML = ''; // Limpiar la lista antes de volver a mostrar los productos
+        productList.forEach(product => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${product.name} - ${product.category} - ${product.quantity}`;
+            productListContainer.appendChild(listItem);
+        });
+    });
+</script>
+
+</body>
+</html>

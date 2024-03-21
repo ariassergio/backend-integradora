@@ -15,6 +15,6 @@ const schema = new Schema({
 })
 
 
-const Message = mongoose.models[collectionName] || mongoose.model(collectionName, schema);
+const messagesModel = mongoose.models[collectionName] || mongoose.model(collectionName, schema);
 
 export default messagesModel
