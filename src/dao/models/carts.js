@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const {Schema} = mongoose
 
-const collection = "Carts"
+const collectionName = "Carts"
 
 const schema = new Schema({
     
@@ -21,6 +21,7 @@ const schema = new Schema({
 })
 
 
-const cartsModel = mongoose.model(collection, schema)
+// Verifica si la colección ya existe, si no, la crea con el esquema definido
+const Cart = mongoose.models[collectionName] || mongoose.model(collectionName, schema);
 
 export default cartsModel

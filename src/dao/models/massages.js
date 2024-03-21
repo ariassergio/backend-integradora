@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const {Schema} = mongoose
 
-const collection = "Messages"
+const collectionName  = "Messages"
 
 const schema = new Schema({
     
@@ -15,6 +15,6 @@ const schema = new Schema({
 })
 
 
-const messagesModel = mongoose.model(collection, schema)
+const Message = mongoose.models[collectionName] || mongoose.model(collectionName, schema);
 
 export default messagesModel

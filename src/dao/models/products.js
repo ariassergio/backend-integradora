@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const {Schema} = mongoose
 
-const collection = "Products"
+const collectionName  = "Products"
 
 const schema = new Schema({
     title: {
@@ -13,6 +13,10 @@ const schema = new Schema({
         require: true
     },
     category: {
+        type: String,
+        require: true
+    },
+    brand: {
         type: String,
         require: true
     },
@@ -34,6 +38,6 @@ const schema = new Schema({
 })
 
 
-const productsModel = mongoose.model(collection, schema)
+const productsModel = mongoose.models[collectionName] || mongoose.model(collectionName, schema);
 
 export default productsModel
