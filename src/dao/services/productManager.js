@@ -6,9 +6,32 @@ export default class ProductManager{
         console.log("Trabajando con productManager")
     }
 
-    getAll = async (limit) => {
-        let result = await productsModel.find().limit(limit)
-        return result
+    getAll = async (limit, page, sort, query) => {
+        let options = {};
+    
+        // Aplicar límite
+        if (limit) {
+            options.limit = parseInt(limit);
+        }
+    
+        // Aplicar paginación
+        if (page) {
+            options.skip = (parseInt(page) - 1) * options.limit || 0;
+        }
+    
+        // Aplicar ordenamiento
+        if (sort) {
+            options.sort = { price: sort === 'asc' ? 1 : -1 };
+        }
+    
+        // Aplicar filtrado por nombre (query)
+        let filter = {};
+        if (query) {
+            filter.title = { $regex: query, $options: 'i' };
+        }
+    
+        let result = await productsModel.find(filter, null, options);
+        return result;
     }
     getById = async (id) => {
 
