@@ -1,11 +1,12 @@
 import express from 'express';
-import __dirname from './utils.js';
-import handlebars from 'express-handlebars'
-import { Server } from 'socket.io';
+import session from 'express-session';
+import bodyParser from 'body-parser';
+import handlebars from 'express-handlebars';
 import mongoose from 'mongoose';
-import productRoutes from './routes/productRoutes.js'
-import chatRoutes from './routes/chatRoutes.js'
-
+import { Server } from 'socket.io';
+import bcrypt from 'bcrypt';
+import sessionRoutes from './routes/sessionRoutes.js';
+import viewRoutes from './routes/viewRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -116,14 +117,67 @@ async function createCollections(db) {
 // Middlewares
 app.set('views', __dirname + '/views')
 app.set('view engine', 'handlebars')
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 app.use(express.static(__dirname + '/public'))
 app.engine('handlebars', handlebars.engine())
 
+// Middleware para sesiones
+app.use(session({
+    secret: 'mi_secreto_super_seguro',
+    resave: false,
+    saveUninitialized: true
+}));
+
+// Middleware para rutas públicas
+const publicRouteMiddleware = (req, res, next) => {
+    if (req.session && req.session.user) {
+        return res.redirect('/profile'); // Redirecciona a la pantalla de perfil si hay una sesión activa
+    }
+    next(); // Continúa con el siguiente middleware
+};
+
+// Middleware para rutas privadas
+const privateRouteMiddleware = (req, res, next) => {
+    if (!req.session || !req.session.user) {
+        return res.redirect('/login'); // Redirecciona a la pantalla de login si no hay una sesión activa
+    }
+    next(); // Continúa con el siguiente middleware
+};
+
+
 // Rutas
-app.use("/api/products", productRoutes)
-app.use("/chat", chatRoutes)
+app.use('/api/sessions', sessionRoutes);
+app.use('/', viewRoutes);
+
+
+// Rutas públicas
+app.get('/login', publicRouteMiddleware, (req, res) => {
+    res.render('login'); // Renderiza la pantalla de login si no hay una sesión activa
+});
+
+app.get('/register', publicRouteMiddleware, (req, res) => {
+    res.render('register'); // Renderiza la pantalla de registro si no hay una sesión activa
+});
+
+// Rutas privadas
+app.get('/profile', privateRouteMiddleware, (req, res) => {
+    res.render('profile', { user: req.session.user }); // Renderiza la pantalla de perfil si hay una sesión activa
+});
+
+// Ruta para logout
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.error('Error al destruir la sesión:', err);
+            res.sendStatus(500);
+        } else {
+            res.redirect('/login'); // Redirecciona a la pantalla de login después de cerrar sesión
+        }
+    });
+});
+
+
 
 const server = app.listen(PORT, () => console.log("Servidor corriendo en puerto", PORT));
 const io = new Server(server);
@@ -146,4 +200,39 @@ io.on('connection', (socket) => {
             console.error("Error al guardar el mensaje:", error);
         }
     });
+});
+
+// Modelo de usuario
+const User = mongoose.model('User', {
+    username: String,
+    password: String
+});
+
+// Rutas de sesiones
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = new User({ username, password: hashedPassword });
+        await user.save();
+        res.send("Usuario registrado correctamente");
+    } catch (error) {
+        res.status(500).send("Error al registrar usuario");
+    }
+});
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (user) {
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (validPassword) {
+            req.session.user = user;
+            res.send("Login exitoso");
+        } else {
+            res.status(401).send("Credenciales incorrectas");
+        }
+    } else {
+        res.status(401).send("Credenciales incorrectas");
+    }
 });
