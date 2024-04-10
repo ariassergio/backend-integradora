@@ -221,14 +221,21 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
+// Ruta para procesar el inicio de sesión
+app.post('/login', publicRouteMiddleware, async (req, res) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
     if (user) {
         const validPassword = await bcrypt.compare(password, user.password);
         if (validPassword) {
             req.session.user = user;
-            res.send("Login exitoso");
+            // Asignar roles
+            if (user.email === 'adminCoder@coder.com' && password === 'adminCod3r123') {
+                req.session.user.role = 'admin';
+            } else {
+                req.session.user.role = 'usuario';
+            }
+            res.redirect('/products');
         } else {
             res.status(401).send("Credenciales incorrectas");
         }
@@ -236,3 +243,4 @@ app.post('/login', async (req, res) => {
         res.status(401).send("Credenciales incorrectas");
     }
 });
+
