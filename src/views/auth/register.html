@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Registro de Usuario</h1>
+    </header>
+    <div class="register">
+        <h2>Register</h2>
+        <form action="/api/session/register" method="POST">
+            <div>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+    <script src="/src/public/js/register.js"></script>
+    <footer>
+        <p>&copy; 2024 My App</p>
+    </footer>
+</body>
+</html>
+
+
+
+
+
+

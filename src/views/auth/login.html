@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Iniciar Sesión</h1>
+    </header>
+    <div class="login">
+        <h2>Login</h2>
+        <form action="/api/session/login" method="POST">
+            <div>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div>
+            <hr>
+            <a href="/api/sessions/github"><button>Inicia sesión con Github</button></a>
+        </div>
+        {{!-- Fin Inicio de sesión Github --}}
+        <p>¿No estás registrado? <a href="/register">Regístrate aquí</a></p>
+        <p><a href="/restore">¿Olvidó su contraseña?</a></p>
+    </div>
+    
+    </div>
+    <script src="/src/public/js/login.js"></script>
+    <footer>
+        <p>&copy; 2024 My App</p>
+    </footer>
+</body>
+</html>
+
+
+
+
+
+
