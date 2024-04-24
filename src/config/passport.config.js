@@ -2,6 +2,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const GitHubStrategy = require('passport-github').Strategy; // Importar la estrategia de GitHub
 
 passport.use(new LocalStrategy(async (username, password, done) => {
     try {
@@ -23,17 +24,17 @@ passport.use(
     "github",
     new GitHubStrategy(
         {
-            clientID: "Iv1.7ac41720c7cfad7c", //id de la app en github
-            clientSecret: "b253559b80d5f9a984d2c0276245cf7b314210be", //clave secreta de github
-            callbackURL: "http://localhost:8080/api/sessions/githubcallback", //url callback de github
+            clientID: "Iv1.7ac41720c7cfad7c", // ID de la aplicación en GitHub
+            clientSecret: "b253559b80d5f9a984d2c0276245cf7b314210be", // Clave secreta de la aplicación en GitHub
+            callbackURL: "http://localhost:8080/api/sessions/githubcallback", // URL de callback de GitHub
         },
-        async (accessToken, refreshToken, profile, done) =>{
-            try{
+        async (accessToken, refreshToken, profile, done) => {
+            try {
                 console.log(profile);
-                const user = await userService.findOne({
+                const user = await User.findOne({
                     email: profile._json.email,
                 });
-                if (!user){
+                if (!user) {
                     const newUser = {
                         first_name: profile._json.name,
                         last_name: "",
@@ -43,16 +44,15 @@ passport.use(
                     };
                     let createdUser = await userService.create(newUser);
                     done(null, createdUser);
-                    
-                }else{
+                } else {
                     done(null, user);
                 }
-            } catch (error){
+            } catch (error) {
                 return done(error);
             }
         }
     )
-)
+);
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
