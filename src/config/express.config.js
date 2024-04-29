@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import handlebars from 'express-handlebars';
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
-import User from './models/user.js'; // Asegúrate de tener la ruta correcta a tu modelo de usuario
+import User from './models/user.js'; 
 
 const app = express();
 
@@ -56,5 +56,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use("/api/sessions", sessionRoutes);
+
+
 export default app;
+
+
 

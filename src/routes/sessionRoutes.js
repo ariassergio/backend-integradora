@@ -63,6 +63,20 @@ router.post('/login', async (req, res) => {
     })(req, res, next);
 
 
+    // Ruta para obtener el usuario actual
+    router.get('/current', (req, res) => {
+        // Verificar si hay un usuario autenticado en la sesión
+        if (req.isAuthenticated()) {
+            // Usuario autenticado, devolver el usuario actual
+            res.status(200).json({ user: req.user });
+        } else {
+            // No hay usuario autenticado en la sesión
+            res.status(401).json({ message: 'No hay usuario autenticado' });
+        }
+    });
+
+    module.exports = router;
+
     /*
     const { username, password } = req.body;
     try {
