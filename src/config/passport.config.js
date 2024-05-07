@@ -3,6 +3,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const GitHubStrategy = require('passport-github').Strategy; // Importar la estrategia de GitHub
+import config from './config.js';
 
 passport.use(new LocalStrategy(async (username, password, done) => {
     try {
@@ -24,8 +25,8 @@ passport.use(
     "github",
     new GitHubStrategy(
         {
-            clientID: "Iv1.7ac41720c7cfad7c", // ID de la aplicación en GitHub
-            clientSecret: "b253559b80d5f9a984d2c0276245cf7b314210be", // Clave secreta de la aplicación en GitHub
+            clientID: config.githubClientId, // ID de la aplicación en GitHub
+            clientSecret: config.githubClientSecret, // Clave secreta de la aplicación en GitHub
             callbackURL: "http://localhost:8080/api/sessions/githubcallback", // URL de callback de GitHub
         },
         async (accessToken, refreshToken, profile, done) => {

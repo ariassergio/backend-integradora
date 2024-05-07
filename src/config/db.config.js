@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
+const config = require('./config');
+
 
 const connectMongoDB = async () => {
     try {
-        await mongoose.connect("mongodb+srv://sergioariaaas:W3tbatNjWzAXr2cx@cluster0.qh2nnui.mongodb.net/ecommerce?retryWrites=true&w=majority", {
+        await mongoose.connect(config.mongodbUri, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });

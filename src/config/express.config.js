@@ -4,7 +4,8 @@ import bodyParser from 'body-parser';
 import handlebars from 'express-handlebars';
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
-import User from './models/user.js'; 
+import User from './models/user.js';
+import config from './config.js';
 
 const app = express();
 
@@ -47,7 +48,7 @@ passport.deserializeUser(async (id, done) => {
 
 // Middleware para sesiones
 app.use(session({
-    secret: 'mi_secreto_super_seguro',
+    secret: config.sessionSecret,
     resave: false,
     saveUninitialized: true
 }));
@@ -56,10 +57,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Importa las rutas de sesión
+import sessionRoutes from './routes/sessionRoutes.js';
+
+// Asocia las rutas de sesión
 app.use("/api/sessions", sessionRoutes);
 
-
 export default app;
-
-
-
