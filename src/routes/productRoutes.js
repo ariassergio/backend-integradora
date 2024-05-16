@@ -1,9 +1,11 @@
-import ProductManager from "../dao/services/productManager.js";
 import express from "express";
+import { isAdmin } from "../middleware/authorization.js"; // Importar middleware de autorización
+import ProductManager from "../dao/services/productManager.js";
 
 const productManager = new ProductManager();
 const router = express.Router();
 
+// Endpoint para obtener todos los productos
 router.get("/all", async (req, res) => {
     try {
         let { limit = 10, page = 1, sort, query } = req.query;
@@ -13,7 +15,7 @@ router.get("/all", async (req, res) => {
         // Lógica de filtrado
         let filter = {};
         if (query) {
-            // Aquí puedes ajustar la lógica de filtrado según tus necesidades
+            
             filter = { category: query }; // Ejemplo de filtrado por categoría
         }
 
@@ -49,7 +51,8 @@ router.get("/all", async (req, res) => {
     }
 });
 
-router.post("/add", async (req, res) => {
+// Endpoint para agregar un producto
+router.post("/add", isAdmin, async (req, res) => { // Agregar middleware de autorización isAdmin
     try {
         const { title, description, category, brand, price, stock, status } = req.body;
         const newProduct = { title, description, category, brand, price, stock, status };
@@ -57,6 +60,31 @@ router.post("/add", async (req, res) => {
         res.json({ status: "success", message: "Producto agregado correctamente" });
     } catch (error) {
         console.error("Error al agregar un producto:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+});
+
+// Endpoint para actualizar un producto (ejemplo)
+router.put("/:id", isAdmin, async (req, res) => { // Agregar middleware de autorización isAdmin
+    try {
+        const productId = req.params.id;
+        const updatedFields = req.body; // Campos actualizados del producto
+        const result = await productManager.updateProduct(productId, updatedFields);
+        res.json({ status: "success", message: "Producto actualizado correctamente" });
+    } catch (error) {
+        console.error("Error al actualizar un producto:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+});
+
+// Endpoint para eliminar un producto (ejemplo)
+router.delete("/:id", isAdmin, async (req, res) => { // Agregar middleware de autorización isAdmin
+    try {
+        const productId = req.params.id;
+        const result = await productManager.deleteProduct(productId);
+        res.json({ status: "success", message: "Producto eliminado correctamente" });
+    } catch (error) {
+        console.error("Error al eliminar un producto:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });

@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const GitHubStrategy = require('passport-github').Strategy; // Importar la estrategia de GitHub
 import config from './config.js';
+import userService from '../services/userService.js'; // Importar el servicio de usuario
 
 passport.use(new LocalStrategy(async (username, password, done) => {
     try {

@@ -1,11 +1,12 @@
 import express from "express";
 import CartManager from "../dao/services/cartManager.js";
+import { isUser } from "../middleware/authorization.js"; // Importar middleware de autorización
 
 const cartManager = new CartManager();
 const router = express.Router();
 
 // DELETE api/carts/:cid/products/:pid
-router.delete("/:cid/products/:pid", async (req, res) => {
+router.delete("/:cid/products/:pid", isUser, async (req, res) => { // Agregar middleware de autorización isUser
     try {
         const { cid, pid } = req.params;
         await cartManager.deleteProduct(cid, pid);
@@ -17,7 +18,7 @@ router.delete("/:cid/products/:pid", async (req, res) => {
 });
 
 // PUT api/carts/:cid
-router.put("/:cid", async (req, res) => {
+router.put("/:cid", isUser, async (req, res) => { // Agregar middleware de autorización isUser
     try {
         const { cid } = req.params;
         const products = req.body.products; // Arreglo de productos con formato especificado
@@ -30,7 +31,7 @@ router.put("/:cid", async (req, res) => {
 });
 
 // PUT api/carts/:cid/products/:pid
-router.put("/:cid/products/:pid", async (req, res) => {
+router.put("/:cid/products/:pid", isUser, async (req, res) => { // Agregar middleware de autorización isUser
     try {
         const { cid, pid } = req.params;
         const { quantity } = req.body;
@@ -43,7 +44,7 @@ router.put("/:cid/products/:pid", async (req, res) => {
 });
 
 // DELETE api/carts/:cid
-router.delete("/:cid", async (req, res) => {
+router.delete("/:cid", isUser, async (req, res) => { // Agregar middleware de autorización isUser
     try {
         const { cid } = req.params;
         await cartManager.deleteCart(cid);
