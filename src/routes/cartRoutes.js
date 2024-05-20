@@ -1,5 +1,6 @@
 import express from "express";
 import CartManager from "../dao/services/cartManager.js";
+import { createTicket } from "../dao/services/ticketService.js"; // Importar servicio de tickets
 import { isUser } from "../middleware/authorization.js"; // Importar middleware de autorización
 
 const cartManager = new CartManager();
@@ -51,6 +52,36 @@ router.delete("/:cid", isUser, async (req, res) => { // Agregar middleware de au
         res.json({ status: "success", message: "Carrito eliminado correctamente" });
     } catch (error) {
         console.error("Error al eliminar el carrito:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+});
+
+// POST api/carts/:cid/purchase - Finalizar la compra y crear un ticket
+router.post("/:cid/purchase", isUser, async (req, res) => {
+    try {
+        const { cid } = req.params;
+        const cart = await cartManager.getCart(cid);
+
+        if (!cart) {
+            return res.status(404).json({ error: "Carrito no encontrado" });
+        }
+
+        const totalAmount = cart.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
+        const purchaser = req.user.email;
+
+        const ticketData = {
+            amount: totalAmount,
+            purchaser: purchaser
+        };
+
+        const ticket = await createTicket(ticketData);
+
+        // Aquí podrías vaciar el carrito o marcarlo como completado
+        await cartManager.clearCart(cid);
+
+        res.json({ status: "success", message: "Compra realizada con éxito", ticket });
+    } catch (error) {
+        console.error("Error al finalizar la compra:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
