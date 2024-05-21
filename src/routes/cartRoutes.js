@@ -1,13 +1,15 @@
 import express from "express";
 import CartManager from "../dao/services/cartManager.js";
-import { createTicket } from "../dao/services/ticketService.js"; // Importar servicio de tickets
-import { isUser } from "../middleware/authorization.js"; // Importar middleware de autorización
+import ProductManager from "../dao/services/productManager.js";
+import { isUser } from "../middleware/authorization.js";
+const ticketService = require('../dao/services/ticketService'); // Importar el servicio de ticket
 
 const cartManager = new CartManager();
+const productManager = new ProductManager();
 const router = express.Router();
 
 // DELETE api/carts/:cid/products/:pid
-router.delete("/:cid/products/:pid", isUser, async (req, res) => { // Agregar middleware de autorización isUser
+router.delete("/:cid/products/:pid", isUser, async (req, res) => {
     try {
         const { cid, pid } = req.params;
         await cartManager.deleteProduct(cid, pid);
@@ -19,7 +21,7 @@ router.delete("/:cid/products/:pid", isUser, async (req, res) => { // Agregar mi
 });
 
 // PUT api/carts/:cid
-router.put("/:cid", isUser, async (req, res) => { // Agregar middleware de autorización isUser
+router.put("/:cid", isUser, async (req, res) => {
     try {
         const { cid } = req.params;
         const products = req.body.products; // Arreglo de productos con formato especificado
@@ -32,7 +34,7 @@ router.put("/:cid", isUser, async (req, res) => { // Agregar middleware de autor
 });
 
 // PUT api/carts/:cid/products/:pid
-router.put("/:cid/products/:pid", isUser, async (req, res) => { // Agregar middleware de autorización isUser
+router.put("/:cid/products/:pid", isUser, async (req, res) => {
     try {
         const { cid, pid } = req.params;
         const { quantity } = req.body;
@@ -45,7 +47,7 @@ router.put("/:cid/products/:pid", isUser, async (req, res) => { // Agregar middl
 });
 
 // DELETE api/carts/:cid
-router.delete("/:cid", isUser, async (req, res) => { // Agregar middleware de autorización isUser
+router.delete("/:cid", isUser, async (req, res) => {
     try {
         const { cid } = req.params;
         await cartManager.deleteCart(cid);
@@ -56,32 +58,61 @@ router.delete("/:cid", isUser, async (req, res) => { // Agregar middleware de au
     }
 });
 
-// POST api/carts/:cid/purchase - Finalizar la compra y crear un ticket
+// POST api/carts/:cid/purchase
 router.post("/:cid/purchase", isUser, async (req, res) => {
     try {
         const { cid } = req.params;
-        const cart = await cartManager.getCart(cid);
+        const cart = await cartManager.getCartById(cid);
 
-        if (!cart) {
-            return res.status(404).json({ error: "Carrito no encontrado" });
+        if (!cart || cart.products.length === 0) {
+            return res.status(400).json({ error: "El carrito está vacío o no existe" });
         }
 
-        const totalAmount = cart.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
+        let totalAmount = 0;
+        const productsToPurchase = [];
+        const unavailableProducts = [];
+
+        for (const cartProduct of cart.products) {
+            const product = await productManager.getProductById(cartProduct.productId);
+
+            if (product.stock >= cartProduct.quantity) {
+                product.stock -= cartProduct.quantity;
+                await product.save(); // Actualizar el stock del producto en la base de datos
+                totalAmount += product.price * cartProduct.quantity;
+                productsToPurchase.push(cartProduct);
+            } else {
+                unavailableProducts.push(cartProduct.productId);
+            }
+        }
+
+        if (productsToPurchase.length === 0) {
+            return res.status(400).json({ error: "No hay productos disponibles para la compra debido a stock insuficiente" });
+        }
+
         const purchaser = req.user.email;
 
         const ticketData = {
             amount: totalAmount,
-            purchaser: purchaser
+            purchaser
         };
 
-        const ticket = await createTicket(ticketData);
+        const newTicket = await ticketService.createTicket(ticketData);
 
-        // Aquí podrías vaciar el carrito o marcarlo como completado
-        await cartManager.clearCart(cid);
+        // Filtrar los productos comprados y dejar los no comprados en el carrito
+        const remainingProducts = cart.products.filter(cartProduct => 
+            unavailableProducts.includes(cartProduct.productId)
+        );
+        await cartManager.updateCart(cid, remainingProducts);
 
-        res.json({ status: "success", message: "Compra realizada con éxito", ticket });
+        res.json({ 
+            status: "success", 
+            message: "Compra realizada con éxito", 
+            ticket: newTicket, 
+            purchasedProducts: productsToPurchase,
+            unavailableProducts 
+        });
     } catch (error) {
-        console.error("Error al finalizar la compra:", error);
+        console.error("Error al realizar la compra:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
