@@ -1,10 +1,11 @@
-// Importar las configuraciones necesarias
+// app.js
+
 const app = require("./config/express.config");
 const path = require('path');
 const handlebars = require("./config/handlebars.config");
 const connectMongoDB = require("./config/db.config");
-const { isUser, isAdmin } = require("./middleware/authorization"); // Importar middlewares de autorización
-const errorHandler = require("./middleware/errorHandler"); // Importar middleware de manejo de errores
+const { isUser, isAdmin } = require("./middleware/authorization");
+const logger = require("./config/logger");  // Importar el logger
 
 // Configurar Express
 app.engine('handlebars', handlebars.engine);
@@ -17,23 +18,20 @@ const chatRoutes = require("./routes/chatRoutes");
 const productRoutes = require("./routes/productRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const viewsRoutes = require("./routes/viewsRoutes");
-const mockRoutes = require("./routes/mockRoutes"); // Importar las rutas de mocking
+const mockRoutes = require("./routes/mockRoutes");
 
 // Configurar las rutas
-app.use("/api/cart", isUser, cartRoutes); // Proteger con isUser
-app.use("/api/chat", isUser, chatRoutes); // Proteger con isUser
-app.use("/api/product", isAdmin, productRoutes); // Proteger con isAdmin
+app.use("/api/cart", isUser, cartRoutes);
+app.use("/api/chat", isUser, chatRoutes);
+app.use("/api/product", isAdmin, productRoutes);
 app.use("/api/session", sessionRoutes);
 app.use("/", viewsRoutes);
-app.use("/mock", mockRoutes); // Agregar las rutas de mocking
-
-// Middleware de manejo de errores
-app.use(errorHandler);
+app.use("/mockingproducts", mockRoutes);
 
 // Iniciar el servidor
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+    logger.info(`Server running on port ${port}`);
 });
 
 // Conectar a MongoDB
