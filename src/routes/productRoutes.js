@@ -1,5 +1,5 @@
 import express from "express";
-import { isAdmin } from "../middleware/authorization.js"; // Importar middleware de autorización
+import { isAdmin, isUser, isPremium } from "../middleware/authorization.js"; // Importar middlewares de autorización
 import ProductManager from "../dao/services/productManager.js";
 
 const productManager = new ProductManager();
@@ -15,7 +15,6 @@ router.get("/all", async (req, res) => {
         // Lógica de filtrado
         let filter = {};
         if (query) {
-            
             filter = { category: query }; // Ejemplo de filtrado por categoría
         }
 
@@ -52,10 +51,12 @@ router.get("/all", async (req, res) => {
 });
 
 // Endpoint para agregar un producto
-router.post("/add", isAdmin, async (req, res) => { // Agregar middleware de autorización isAdmin
+router.post("/add", isPremium, async (req, res) => { // Cambiar middleware de autorización a isPremium
     try {
         const { title, description, category, brand, price, stock, status } = req.body;
-        const newProduct = { title, description, category, brand, price, stock, status };
+        const owner = req.user._id; // Obtener el ID del usuario que crea el producto
+
+        const newProduct = { title, description, category, brand, price, stock, status, owner };
         const result = await productManager.addProduct(newProduct);
         res.json({ status: "success", message: "Producto agregado correctamente" });
     } catch (error) {
@@ -64,11 +65,21 @@ router.post("/add", isAdmin, async (req, res) => { // Agregar middleware de auto
     }
 });
 
-// Endpoint para actualizar un producto (ejemplo)
-router.put("/:id", isAdmin, async (req, res) => { // Agregar middleware de autorización isAdmin
+// Endpoint para actualizar un producto
+router.put("/:id", isUser, async (req, res) => { // Cambiar middleware de autorización a isUser
     try {
         const productId = req.params.id;
         const updatedFields = req.body; // Campos actualizados del producto
+        const product = await productManager.getProductById(productId);
+
+        if (!product) {
+            return res.status(404).json({ error: "Producto no encontrado" });
+        }
+
+        if (req.user.role !== 'admin' && product.owner.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: "Acceso denegado" });
+        }
+
         const result = await productManager.updateProduct(productId, updatedFields);
         res.json({ status: "success", message: "Producto actualizado correctamente" });
     } catch (error) {
@@ -77,10 +88,20 @@ router.put("/:id", isAdmin, async (req, res) => { // Agregar middleware de autor
     }
 });
 
-// Endpoint para eliminar un producto (ejemplo)
-router.delete("/:id", isAdmin, async (req, res) => { // Agregar middleware de autorización isAdmin
+// Endpoint para eliminar un producto
+router.delete("/:id", isUser, async (req, res) => { // Cambiar middleware de autorización a isUser
     try {
         const productId = req.params.id;
+        const product = await productManager.getProductById(productId);
+
+        if (!product) {
+            return res.status(404).json({ error: "Producto no encontrado" });
+        }
+
+        if (req.user.role !== 'admin' && product.owner.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: "Acceso denegado" });
+        }
+
         const result = await productManager.deleteProduct(productId);
         res.json({ status: "success", message: "Producto eliminado correctamente" });
     } catch (error) {

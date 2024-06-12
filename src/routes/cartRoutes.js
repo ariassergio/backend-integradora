@@ -126,4 +126,30 @@ router.post("/:cid/purchase", isUser, async (req, res) => {
     }
 });
 
+// Endpoint para agregar un producto al carrito
+router.post("/:cid/products/add", isUser, async (req, res) => {
+    try {
+        const { cid } = req.params;
+        const { productId } = req.body;
+
+        // Verificar si el usuario es premium
+        if (req.user.role === 'premium') {
+            // Obtener información del producto
+            const product = await productManager.getProductById(productId);
+
+            // Verificar si el producto pertenece al usuario premium
+            if (product.owner.toString() === req.user._id.toString()) {
+                return res.status(403).json({ error: "No puedes agregar tu propio producto al carrito" });
+            }
+        }
+
+        // Agregar producto al carrito
+        await cartManager.addProductToCart(cid, productId);
+        res.json({ status: "success", message: "Producto agregado al carrito correctamente" });
+    } catch (error) {
+        console.error("Error al agregar un producto al carrito:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+});
+
 export default router;

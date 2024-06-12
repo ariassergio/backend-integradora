@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-const {Schema} = mongoose
+const { Schema } = mongoose;
 
-const collectionName  = "Products"
+const collectionName = "Products";
 
 const schema = new Schema({
     title: {
@@ -31,13 +31,14 @@ const schema = new Schema({
     status: {
         type: Boolean,
         require: true
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
     }
-
-
-
-})
-
+});
 
 const productsModel = mongoose.models[collectionName] || mongoose.model(collectionName, schema);
 
-export default productsModel
+export default productsModel;
