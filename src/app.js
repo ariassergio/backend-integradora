@@ -6,11 +6,18 @@ const handlebars = require("./config/handlebars.config");
 const connectMongoDB = require("./config/db.config");
 const { isUser, isAdmin } = require("./middleware/authorization");
 const logger = require("./config/logger");  // Importar el logger
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const swaggerOptions = require("./config/swagger");
 
 // Configurar Express
 app.engine('handlebars', handlebars.engine);
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views/"));
+
+// Swagger setup
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Importar las rutas
 const cartRoutes = require("./routes/cartRoutes");

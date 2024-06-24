@@ -1,5 +1,3 @@
-// routes/cartRoutes.js
-
 import express from "express";
 import CartManager from "../dao/services/cartManager.js";
 import ProductManager from "../dao/services/productManager.js";
@@ -11,7 +9,47 @@ const cartManager = new CartManager();
 const productManager = new ProductManager();
 const router = express.Router();
 
-// DELETE api/carts/:cid/products/:pid
+/**
+ * @swagger
+ * tags:
+ *   name: Carts
+ *   description: The cart managing API
+ */
+
+/**
+ * @swagger
+ * /carts/{cid}/products/{pid}:
+ *   delete:
+ *     summary: Remove a product from the cart
+ *     tags: [Carts]
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The cart id
+ *       - in: path
+ *         name: pid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The product id
+ *     responses:
+ *       200:
+ *         description: The product was removed from the cart
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ */
 router.delete("/:cid/products/:pid", isUser, async (req, res) => {
     try {
         const { cid, pid } = req.params;
@@ -24,7 +62,50 @@ router.delete("/:cid/products/:pid", isUser, async (req, res) => {
     }
 });
 
-// PUT api/carts/:cid
+/**
+ * @swagger
+ * /carts/{cid}:
+ *   put:
+ *     summary: Update the cart
+ *     tags: [Carts]
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The cart id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               products:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     productId:
+ *                       type: string
+ *                     quantity:
+ *                       type: integer
+ *     responses:
+ *       200:
+ *         description: The cart was updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ */
 router.put("/:cid", isUser, async (req, res) => {
     try {
         const { cid } = req.params;
@@ -38,7 +119,49 @@ router.put("/:cid", isUser, async (req, res) => {
     }
 });
 
-// PUT api/carts/:cid/products/:pid
+/**
+ * @swagger
+ * /carts/{cid}/products/{pid}:
+ *   put:
+ *     summary: Update product quantity in the cart
+ *     tags: [Carts]
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The cart id
+ *       - in: path
+ *         name: pid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The product id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quantity:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: The product quantity was updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ */
 router.put("/:cid/products/:pid", isUser, async (req, res) => {
     try {
         const { cid, pid } = req.params;
@@ -52,7 +175,34 @@ router.put("/:cid/products/:pid", isUser, async (req, res) => {
     }
 });
 
-// DELETE api/carts/:cid
+/**
+ * @swagger
+ * /carts/{cid}:
+ *   delete:
+ *     summary: Delete the cart
+ *     tags: [Carts]
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The cart id
+ *     responses:
+ *       200:
+ *         description: The cart was deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ */
 router.delete("/:cid", isUser, async (req, res) => {
     try {
         const { cid } = req.params;
@@ -65,7 +215,46 @@ router.delete("/:cid", isUser, async (req, res) => {
     }
 });
 
-// POST api/carts/:cid/purchase
+/**
+ * @swagger
+ * /carts/{cid}/purchase:
+ *   post:
+ *     summary: Purchase the items in the cart
+ *     tags: [Carts]
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The cart id
+ *     responses:
+ *       200:
+ *         description: The purchase was successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *                 ticket:
+ *                   type: object
+ *                 purchasedProducts:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 unavailableProducts:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       400:
+ *         description: The cart is empty or does not exist
+ *       500:
+ *         description: Internal server error
+ */
 router.post("/:cid/purchase", isUser, async (req, res) => {
     try {
         const { cid } = req.params;
@@ -126,7 +315,45 @@ router.post("/:cid/purchase", isUser, async (req, res) => {
     }
 });
 
-// Endpoint para agregar un producto al carrito
+/**
+ * @swagger
+ * /carts/{cid}/products/add:
+ *   post:
+ *     summary: Add a product to the cart
+ *     tags: [Carts]
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The cart id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               productId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The product was added to the cart
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: You cannot add your own product to the cart
+ *       500:
+ *         description: Internal server error
+ */
 router.post("/:cid/products/add", isUser, async (req, res) => {
     try {
         const { cid } = req.params;
