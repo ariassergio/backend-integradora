@@ -26,12 +26,14 @@ const productRoutes = require("./routes/productRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const viewsRoutes = require("./routes/viewsRoutes");
 const mockRoutes = require("./routes/mockRoutes");
+const userRoutes = require("./routes/userRoutes"); // Importar las rutas de usuarios
 
 // Configurar las rutas
 app.use("/api/cart", isUser, cartRoutes);
 app.use("/api/chat", isUser, chatRoutes);
 app.use("/api/product", isAdmin, productRoutes);
 app.use("/api/session", sessionRoutes);
+app.use("/api/users", userRoutes); // Agregar las rutas de usuarios
 app.use("/", viewsRoutes);
 app.use("/mockingproducts", mockRoutes);
 
