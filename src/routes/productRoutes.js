@@ -1,6 +1,7 @@
 import express from "express";
 import { isAdmin, isUser, isPremium } from "../middleware/authorization.js"; // Importar middlewares de autorización
 import ProductManager from "../dao/services/productManager.js";
+import { sendMail } from '../config/mailer';
 import { deleteProduct } from '../controllers/productController';
 
 const productManager = new ProductManager();
@@ -321,24 +322,23 @@ router.put("/:id", isUser, async (req, res) => { // Cambiar middleware de autori
  *       500:
  *         description: Internal server error
  */
-router.delete("/:id", isUser, async (req, res) => { // Cambiar middleware de autorización a isUser
+router.delete('/:id', isAdmin, async (req, res) => {
     try {
-        const productId = req.params.id;
-        const product = await productManager.getProductById(productId);
-
+        const product = await Product.findByIdAndDelete(req.params.id);
+        
         if (!product) {
-            return res.status(404).json({ error: "Producto no encontrado" });
+            return res.status(404).json({ error: 'Producto no encontrado' });
         }
 
-        if (req.user.role !== 'admin' && product.owner.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ error: "Acceso denegado" });
+        const user = await User.findById(product.userId);
+        if (user && user.role === 'premium') {
+            sendMail(user.email, 'Producto Eliminado', `El producto ${product.name} ha sido eliminado.`);
         }
 
-        const result = await productManager.deleteProduct(productId);
-        res.json({ status: "success", message: "Producto eliminado correctamente" });
+        res.json({ status: 'success', message: 'Producto eliminado correctamente' });
     } catch (error) {
-        console.error("Error al eliminar un producto:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+        console.error('Error al eliminar producto:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
 
