@@ -1,6 +1,7 @@
 import express from "express";
 import { isAdmin, isUser, isPremium } from "../middleware/authorization.js"; // Importar middlewares de autorización
 import ProductManager from "../dao/services/productManager.js";
+import { deleteProduct } from '../controllers/productController';
 
 const productManager = new ProductManager();
 const router = express.Router();
@@ -340,5 +341,7 @@ router.delete("/:id", isUser, async (req, res) => { // Cambiar middleware de aut
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
+
+router.delete('/:productId', isAdmin, deleteProduct);
 
 export default router;

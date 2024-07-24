@@ -1,6 +1,7 @@
 import express from 'express';
 import axios from 'axios';
 import User from '../models/User'; // Importa el modelo de usuario si lo tienes definido
+import { isAdmin } from '../middleware/authorization'; // Importa el middleware de autorización si lo tienes
 
 const router = express.Router();
 
@@ -33,18 +34,63 @@ router.get('/', async (req, res) => {
 
 router.get('/login', (req, res) => {
   // Renderiza el formulario de login
+  res.render('login');
 });
 
 router.get('/register', (req, res) => {
   // Renderiza el formulario de registro
+  res.render('register');
 });
 
 router.get('/profile', (req, res) => {
   // Renderiza la vista de perfil
+  res.render('profile');
 });
-//restaurar password
-router.get("/restore", (req, res) => {
-  res.render("restore");
+
+// Restaurar password
+router.get('/restore', (req, res) => {
+  res.render('restore');
+});
+
+// Vista para administradores: gestionar usuarios
+router.get('/admin/users', isAdmin, async (req, res) => {
+    try {
+        const users = await User.find({}, 'first_name last_name email role');
+        res.render('adminUsers', { users });
+    } catch (error) {
+        console.error('Error al cargar los usuarios:', error);
+        res.status(500).send('Error interno del servidor');
+    }
+});
+
+// Actualizar rol de usuario
+router.post('/admin/users/:uid/role', isAdmin, async (req, res) => {
+    try {
+        const { uid } = req.params;
+        const { role } = req.body;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).send('Usuario no encontrado');
+        }
+        user.role = role;
+        await user.save();
+        res.redirect('/admin/users');
+    } catch (error) {
+        console.error('Error al actualizar el rol del usuario:', error);
+        res.status(500).send('Error interno del servidor');
+    }
+});
+
+// Eliminar usuario
+router.post('/admin/users/:uid/delete', isAdmin, async (req, res) => {
+    try {
+        const { uid } = req.params;
+        await User.findByIdAndDelete(uid);
+        res.redirect('/admin/users');
+    } catch (error) {
+        console.error('Error al eliminar el usuario:', error);
+        res.status(500).send('Error interno del servidor');
+    }
 });
 
 export default router;
