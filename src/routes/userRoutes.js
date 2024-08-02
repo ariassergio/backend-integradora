@@ -19,7 +19,14 @@ const router = express.Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/', userController.getAllUsers);
+router.get('/', isAdmin, async (req, res) => {
+    try {
+        const users = await User.find({}, 'first_name last_name email role');
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
 
 /**
  * @swagger
@@ -160,27 +167,6 @@ router.post('/:uid/documents', upload.array('documents'), async (req, res) => {
         res.json({ status: 'success', message: 'Documentos subidos correctamente' });
     } catch (error) {
         console.error('Error al subir documentos:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
-    }
-});
-
-/**
- * @swagger
- * /api/users:
- *   get:
- *     summary: Retrieve all users with basic information
- *     tags: [Users]
- *     responses:
- *       200:
- *         description: A list of users with basic information
- *       500:
- *         description: Internal server error
- */
-router.get('/', isAdmin, async (req, res) => {
-    try {
-        const users = await User.find({}, 'first_name last_name email role');
-        res.json(users);
-    } catch (error) {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
