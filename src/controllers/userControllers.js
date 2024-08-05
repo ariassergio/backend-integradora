@@ -88,6 +88,53 @@ class UserController {
     }
   }
 
+  async uploadDocuments(req, res) {
+    try {
+      const { uid } = req.params;
+      const user = await userRepository.getUserById(uid);
+      if (!user) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+      
+      const documents = req.files.map(file => ({
+        name: file.originalname,
+        reference: file.path
+      }));
+      
+      user.documents = user.documents.concat(documents);
+      await userRepository.updateUser(uid, { documents: user.documents });
+      
+      res.json({ status: 'success', message: 'Documentos subidos correctamente' });
+    } catch (error) {
+      console.error('Error al subir documentos:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  }
+
+  async updateUserRoleToPremium(req, res) {
+    try {
+      const { uid } = req.params;
+      const user = await userRepository.getUserById(uid);
+
+      if (!user) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
+
+      const requiredDocuments = ["Identificación", "Comprobante de domicilio", "Comprobante de estado de cuenta"];
+      const hasRequiredDocuments = requiredDocuments.every(doc => user.documents.some(d => d.name === doc));
+
+      if (!hasRequiredDocuments) {
+        return res.status(400).json({ error: "El usuario debe cargar los documentos requeridos antes de ser premium" });
+      }
+
+      await userRepository.updateUser(uid, { role: 'premium' });
+      res.json({ status: "success", message: "Rol de usuario actualizado a premium correctamente" });
+    } catch (error) {
+      console.error("Error al actualizar el rol del usuario:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  }
+
   renderLogin(req, res) {
     res.sendFile(path.join(__dirname, '../../views/auth/login.html'));
   }

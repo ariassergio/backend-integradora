@@ -1,7 +1,8 @@
 import express from 'express';
 import axios from 'axios';
-import User from '../models/User'; // Importa el modelo de usuario si lo tienes definido
-import { isAdmin } from '../middleware/authorization'; // Importa el middleware de autorización si lo tienes
+import User from '../models/User.js'; // Importa el modelo de usuario con la extensión .js
+import { isAdmin } from '../middleware/authorization.js'; // Importa el middleware de autorización con la extensión .js
+import upload from '../config/multer.config.js'; // Importar multer para manejo de archivos
 
 const router = express.Router();
 
@@ -89,6 +90,30 @@ router.post('/admin/users/:uid/delete', isAdmin, async (req, res) => {
         res.redirect('/admin/users');
     } catch (error) {
         console.error('Error al eliminar el usuario:', error);
+        res.status(500).send('Error interno del servidor');
+    }
+});
+
+// Subir documentos de usuario
+router.post('/users/:uid/documents', upload.array('documents'), async (req, res) => {
+    try {
+        const { uid } = req.params;
+        const user = await User.findById(uid);
+        if (!user) {
+            return res.status(404).send('Usuario no encontrado');
+        }
+        
+        const documents = req.files.map(file => ({
+            name: file.originalname,
+            reference: file.path
+        }));
+        
+        user.documents = user.documents.concat(documents);
+        await user.save();
+        
+        res.redirect(`/users/${uid}/documents`);
+    } catch (error) {
+        console.error('Error al subir documentos:', error);
         res.status(500).send('Error interno del servidor');
     }
 });

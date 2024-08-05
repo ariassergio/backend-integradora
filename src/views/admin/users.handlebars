@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>Administración de Usuarios</title>
 </head>
 <body>
-    <h1>{{title}}</h1>
+    <h1>Administración de Usuarios</h1>
     <table>
         <thead>
             <tr>
@@ -15,15 +14,30 @@
                 <th>Acciones</th>
             </tr>
         </thead>
-        <tbody id="user-table-body">
-            <!-- Aquí se llenarán los datos de los usuarios con JavaScript -->
+        <tbody>
+            <% users.forEach(user => { %>
+                <tr>
+                    <td><%= user.first_name %> <%= user.last_name %></td>
+                    <td><%= user.email %></td>
+                    <td>
+                        <form action="/admin/users/<%= user._id %>/role" method="post">
+                            <input type="hidden" name="userId" value="<%= user._id %>">
+                            <select name="role" onchange="this.form.submit()">
+                                <option value="user" <%= user.role === 'user' ? 'selected' : '' %>>User</option>
+                                <option value="premium" <%= user.role === 'premium' ? 'selected' : '' %>>Premium</option>
+                                <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/admin/users/<%= user._id %>/delete" method="post" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }); %>
         </tbody>
     </table>
-
-    <script src="/path/to/your/javascript"></script>
-    <script>
-        // Código para obtener y mostrar los usuarios, modificar roles y eliminar usuarios
-        // Puedes usar fetch para hacer solicitudes a tu API y manipular el DOM para mostrar los resultados
-    </script>
 </body>
 </html>
