@@ -1,16 +1,16 @@
 // app.js
 
-const express = require("express");
-const app = require("./config/express.config");
-const path = require('path');
-const handlebars = require("./config/handlebars.config");
-const connectMongoDB = require("./config/db.config");
-const { isUser, isAdmin } = require("./middleware/authorization");
-const logger = require("./config/logger");  // Importar el logger
-const swaggerJsdoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
-const swaggerOptions = require("./config/swagger");
-const session = require('express-session');
+const express = import("express");
+const app = import("./config/express.config");
+const path = import('path');
+const handlebars = import("./config/handlebars.config");
+const connectMongoDB = import("./config/db.config");
+const { isUser, isAdmin } = import("./middleware/authorization");
+const logger = import("./config/logger");  // Importar el logger
+const swaggerJsdoc = import("swagger-jsdoc");
+const swaggerUi = import("swagger-ui-express");
+const swaggerOptions = import("./config/swagger");
+const session = import('express-session');
 
 // Configurar Express
 app.engine('handlebars', handlebars.engine);
@@ -29,15 +29,15 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Importar las rutas
-const cartRoutes = require("./routes/cartRoutes");
-const chatRoutes = require("./routes/chatRoutes");
-const productRoutes = require("./routes/productRoutes");
-const sessionRoutes = require("./routes/sessionRoutes");
-const viewsRoutes = require("./routes/viewsRoutes");
-const mockRoutes = require("./routes/mockRoutes");
-const userRoutes = require("./routes/userRoutes"); // Importar las rutas de usuarios
-const checkoutRoutes = require('./routes/checkoutRoutes'); // Nueva ruta de checkout
-const confirmationRoutes = require('./routes/confirmationRoutes'); // Nueva ruta de confirmación
+const cartRoutes = import("./routes/cartRoutes");
+const chatRoutes = import("./routes/chatRoutes");
+const productRoutes = import("./routes/productRoutes");
+const sessionRoutes = import("./routes/sessionRoutes");
+const viewsRoutes = import("./routes/viewsRoutes");
+const mockRoutes = import("./routes/mockRoutes");
+const userRoutes = import("./routes/userRoutes"); // Importar las rutas de usuarios
+const checkoutRoutes = import('./routes/checkoutRoutes'); // Nueva ruta de checkout
+const confirmationRoutes = import('./routes/confirmationRoutes'); // Nueva ruta de confirmación
 
 // Configurar las rutas
 app.use("/api/cart", isUser, cartRoutes);

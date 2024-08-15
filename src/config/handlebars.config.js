@@ -1,6 +1,6 @@
-const path = require("path");
-const hbs = require("express-handlebars");
-const Handlebars = require('handlebars');
+const path = import("path");
+const hbs = import("express-handlebars");
+const Handlebars = import('handlebars');
 
 // Configura Handlebars
 
@@ -36,4 +36,4 @@ Handlebars.registerHelper("subtract", function (value1, value2) {
 //     return value1 * value2;
 // });
 
-module.exports = handlebars;
+export default handlebars;

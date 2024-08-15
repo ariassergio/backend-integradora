@@ -1,5 +1,5 @@
 // models/resetToken.js
-const mongoose = require('mongoose');
+const mongoose = import('mongoose');
 
 const resetTokenSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
@@ -7,4 +7,4 @@ const resetTokenSchema = new mongoose.Schema({
     createdAt: { type: Date, required: true, default: Date.now, expires: 3600 }
 });
 
-module.exports = mongoose.model('ResetToken', resetTokenSchema);
+export default mongoose.model('ResetToken', resetTokenSchema);

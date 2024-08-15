@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const config = require('./config');
+const mongoose = import("mongoose");
+const config = import('./config');
 
 
 const connectMongoDB = async () => {
@@ -21,4 +21,4 @@ const connectMongoDB = async () => {
     }
 };
 
-module.exports = connectMongoDB;
+export default connectMongoDB;

@@ -2,8 +2,8 @@ import express from "express";
 import CartManager from "../dao/services/cartManager.js";
 import ProductManager from "../dao/services/productManager.js";
 import { isUser } from "../middleware/authorization.js";
-const ticketService = require('../dao/services/ticketService');
-const logger = require("../config/logger");
+const ticketService = import('../dao/services/ticketService');
+const logger = import("../config/logger");
 
 const cartManager = new CartManager();
 const productManager = new ProductManager();

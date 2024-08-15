@@ -1,4 +1,4 @@
-const Ticket = require('../models/ticketModel');
+const Ticket = import('../models/ticketModel');
 
 // Función para crear un nuevo ticket
 async function createTicket(ticketData) {

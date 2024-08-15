@@ -1,8 +1,8 @@
 // services/passwordService.js
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
-const User = require('../models/user');
-const ResetToken = require('../models/resetToken');
+const crypto = import('crypto');
+const nodemailer = import('nodemailer');
+const User = import('../models/user');
+const ResetToken = import('../models/resetToken');
 
 async function sendResetEmail(email) {
     const user = await User.findOne({ email });

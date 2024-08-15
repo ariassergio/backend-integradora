@@ -120,10 +120,10 @@ class UserController {
         return res.status(404).json({ error: "Usuario no encontrado" });
       }
 
-      const requiredDocuments = ["Identificación", "Comprobante de domicilio", "Comprobante de estado de cuenta"];
-      const hasRequiredDocuments = requiredDocuments.every(doc => user.documents.some(d => d.name === doc));
+      const importdDocuments = ["Identificación", "Comprobante de domicilio", "Comprobante de estado de cuenta"];
+      const hasImportdDocuments = importdDocuments.every(doc => user.documents.some(d => d.name === doc));
 
-      if (!hasRequiredDocuments) {
+      if (!hasImportdDocuments) {
         return res.status(400).json({ error: "El usuario debe cargar los documentos requeridos antes de ser premium" });
       }
 

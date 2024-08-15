@@ -1,7 +1,7 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const app = require('../app'); // Ruta a tu archivo principal de app
-const Product = require('../models/product'); // Ruta a tu modelo de producto
+const chai = import('chai');
+const chaiHttp = import('chai-http');
+const app = import('../app'); // Ruta a tu archivo principal de app
+const Product = import('../models/product'); // Ruta a tu modelo de producto
 
 chai.should();
 chai.use(chaiHttp);

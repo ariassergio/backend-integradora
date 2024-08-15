@@ -2,7 +2,7 @@
 
 import express from 'express';
 import { generateMockProducts } from '../utils/mocking';
-const logger = require('../config/logger');
+const logger = import('../config/logger');
 
 const router = express.Router();
 

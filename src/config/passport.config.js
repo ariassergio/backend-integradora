@@ -1,8 +1,8 @@
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const bcrypt = require('bcrypt');
-const User = require('../models/User');
-const GitHubStrategy = require('passport-github').Strategy; // Importar la estrategia de GitHub
+const passport = import('passport');
+const LocalStrategy = import('passport-local').Strategy;
+const bcrypt = import('bcrypt');
+const User = import('../models/User');
+const GitHubStrategy = import('passport-github').Strategy; // Importar la estrategia de GitHub
 import config from './config.js';
 import userService from '../services/userService.js'; // Importar el servicio de usuario
 
@@ -69,4 +69,4 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-module.exports = passport;
+export default passport;

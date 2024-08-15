@@ -1,5 +1,5 @@
-const UserDAO = require('./models/user.dao');
-const UserModel = require('./models/mongo_models/user.schema');  
+const UserDAO = import('./models/user.dao');
+const UserModel = import('./models/mongo_models/user.schema');  
 
 class DAOFactory {
     static getDAO(type) {
@@ -13,4 +13,4 @@ class DAOFactory {
     }
 }
 
-module.exports = DAOFactory;
+export default DAOFactory;

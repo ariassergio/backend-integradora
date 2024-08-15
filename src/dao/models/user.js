@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const mongoose = import('mongoose');
+const bcrypt = import('bcrypt');
 
 const userSchema = new mongoose.Schema({
   first_name: { type: String, required: true },
@@ -35,4 +35,4 @@ userSchema.methods.updateLastConnection = function() {
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+export default User;

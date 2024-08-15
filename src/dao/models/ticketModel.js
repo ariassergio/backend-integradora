@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = import('mongoose');
 
 // Definir el esquema del Ticket
 const ticketSchema = new mongoose.Schema({
@@ -11,4 +11,4 @@ const ticketSchema = new mongoose.Schema({
 // Crear el modelo Ticket
 const Ticket = mongoose.model('Ticket', ticketSchema);
 
-module.exports = Ticket;
+export default Ticket;

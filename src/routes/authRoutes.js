@@ -1,6 +1,6 @@
 // routes/authRoutes.js
-const express = require('express');
-const { sendResetEmail, resetPassword } = require('../services/passwordService');
+const express = import('express');
+const { sendResetEmail, resetPassword } = import('../services/passwordService');
 
 const router = express.Router();
 
@@ -22,4 +22,4 @@ router.post('/reset-password/:token', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

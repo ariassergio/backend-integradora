@@ -1,7 +1,7 @@
-const express = require('express');
+const express = import('express');
 const router = express.Router();
-const passport = require('../config/passport.config');
-const User = require('../models/User'); // Importa el modelo de usuario
+const passport = import('../config/passport.config');
+const User = import('../models/User'); // Importa el modelo de usuario
 
 // Ruta para registrar usuarios
 router.post('/register', (req, res, next) => {
@@ -77,4 +77,4 @@ router.get('/current', (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
