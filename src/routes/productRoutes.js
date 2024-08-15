@@ -1,7 +1,7 @@
 import express from "express";
 import { isAdmin, isUser, isPremium } from "../middleware/authorization.js"; // Importar middlewares de autorización
 import ProductManager from "../dao/services/productManager.js";
-import { sendMail } from '../config/mailer';
+import { sendMail } from '../config/mailer.js';
 import { deleteProduct } from '../controllers/productController';
 
 const productManager = new ProductManager();
