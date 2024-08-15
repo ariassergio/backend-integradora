@@ -1,21 +1,29 @@
-// app.js
+import express from "express";
+import handlebars from "express-handlebars";
+import path from 'path';
+import session from 'express-session';
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import connectMongoDB from "./config/db.config.js";
+import logger from "./config/logger.js";  // Importar el logger
+import swaggerOptions from "./config/swagger.js";
 
-const express = import("express");
-const app = import("./config/express.config");
-const path = import('path');
-const handlebars = import("./config/handlebars.config");
-const connectMongoDB = import("./config/db.config");
-const { isUser, isAdmin } = import("./middleware/authorization");
-const logger = import("./config/logger");  // Importar el logger
-const swaggerJsdoc = import("swagger-jsdoc");
-const swaggerUi = import("swagger-ui-express");
-const swaggerOptions = import("./config/swagger");
-const session = import('express-session');
+// Importar las rutas
+import cartRoutes from "./routes/cartRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import sessionRoutes from "./routes/sessionRoutes.js";
+import viewsRoutes from "./routes/viewsRoutes.js";
+import mockRoutes from "./routes/mockRoutes.js";
+import userRoutes from "./routes/userRoutes.js"; // Importar las rutas de usuarios
+import checkoutRoutes from './routes/checkoutRoutes.js'; // Nueva ruta de checkout
+import confirmationRoutes from './routes/confirmationRoutes.js'; // Nueva ruta de confirmación
 
 // Configurar Express
-app.engine('handlebars', handlebars.engine);
+const app = express();
+app.engine('handlebars', handlebars());
 app.set("view engine", "handlebars");
-app.set("views", path.join(__dirname, "views/"));
+app.set("views", path.join(path.resolve(), "views/"));
 
 // Configuración de la sesión
 app.use(session({ 
@@ -28,21 +36,10 @@ app.use(session({
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Importar las rutas
-const cartRoutes = import("./routes/cartRoutes");
-const chatRoutes = import("./routes/chatRoutes");
-const productRoutes = import("./routes/productRoutes");
-const sessionRoutes = import("./routes/sessionRoutes");
-const viewsRoutes = import("./routes/viewsRoutes");
-const mockRoutes = import("./routes/mockRoutes");
-const userRoutes = import("./routes/userRoutes"); // Importar las rutas de usuarios
-const checkoutRoutes = import('./routes/checkoutRoutes'); // Nueva ruta de checkout
-const confirmationRoutes = import('./routes/confirmationRoutes'); // Nueva ruta de confirmación
-
 // Configurar las rutas
-app.use("/api/cart", isUser, cartRoutes);
-app.use("/api/chat", isUser, chatRoutes);
-app.use("/api/product", isAdmin, productRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/product", productRoutes);
 app.use("/api/session", sessionRoutes);
 app.use("/api/users", userRoutes); // Agregar las rutas de usuarios
 app.use("/", viewsRoutes);
